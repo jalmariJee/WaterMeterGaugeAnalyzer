@@ -101,7 +101,7 @@ for image in image_files:
 
 
         # Show result
-        cv2.imshow('Detected Circle', crop_img)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        #cv2.imshow('Detected Circle', crop_img)
+        #cv2.waitKey(0)
+        #cv2.destroyAllWindows()
 
