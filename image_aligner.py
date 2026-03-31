@@ -12,9 +12,6 @@ current_dir_images = os.path.join(current_dir, "images")
 image_files = [f for f in os.listdir(current_dir_images) if os.path.isfile(os.path.join(current_dir_images, f))]
 
 for image in image_files:
-    # Skip files that aren't WaterMeter_... images ---
-    if not image.startswith("WaterMeter_"):
-        continue
     relative_path = os.path.join(current_dir_images, image)
     #Construct the relative path to the folder at the same level
     #relative_path = os.path.join(current_dir_images, "IMG_20260309_203637_HDR.jpg")
@@ -26,7 +23,8 @@ for image in image_files:
     # If image is oriented incorrectly, rotate it
     if img.shape[1] > img.shape[0]:  # If width is greater than height
         img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)  # Rotate 90 degrees clockwise
-
+    if "WaterMeter" in image:  # Check if the image name contains a specific substring
+        img = cv2.rotate(img, cv2.ROTATE_180)  # Rotate 180 degrees
     scale_percent = 100  # percent of original size
     width = int(img.shape[1] * scale_percent / 100)
     height = int(img.shape[0] * scale_percent / 100)
@@ -59,16 +57,15 @@ for image in image_files:
 
 
     # Detect circles
-    # Lowered maxRadius so it finds dials, not the whole meter ---
     circles = cv2.HoughCircles(
         gray,
         cv2.HOUGH_GRADIENT,
         dp=1.2,         
         minDist=50,
         param1=200,
-        param2=80,
+        param2=100,
         minRadius=40,      
-        maxRadius=120
+        maxRadius=300
     )
 
     print(circles)
@@ -89,19 +86,17 @@ for image in image_files:
         x, y, r = map(int, sorted_circles[0])
 
         # Sort the leftmost circle and crop the image around it
-        # -- Added padding and fixed the save path to overwrite ---
-        padding = 10 # This gives the dial a little breathing room so edges aren't cut off
 
         # Square bounding box of size (2r x 2r) centered at (x, y)
-        x1 = max(x - r - padding, 0);        x2 = min(x + r + padding, resized.shape[1])
-        y1 = max(y - r - padding, 0);        y2 = min(y + r + padding, resized.shape[0])
+        x1 = max(x - r, 0);        x2 = min(x + r, resized.shape[1])
+        y1 = max(y - r, 0);        y2 = min(y + r, resized.shape[0])
         crop_img = resized[y1:y2, x1:x2]
 
         #Save the cropped image
         output_path = os.path.join(current_dir, "cropped_images")
         if not os.path.exists(output_path):
             os.makedirs(output_path)
-        cv2.imwrite(os.path.join(output_path, image), crop_img)
+        cv2.imwrite(os.path.join(output_path, f"cropped_{image}"), crop_img)
 
         
 
