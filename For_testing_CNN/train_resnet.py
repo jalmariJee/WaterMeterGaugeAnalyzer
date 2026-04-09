@@ -93,5 +93,5 @@ for epoch in range(EPOCHS):
     print(f"Epoch {epoch+1}/{EPOCHS} | Loss: {running_loss/len(train_loader):.4f} | Validation Accuracy: {val_accuracy:.2f}%")
 
 # 6. Save the Brain
-torch.save(model.state_dict(), 'water_meter_brain.pth')
-print("✅ Training Complete! Model saved as 'water_meter_brain.pth'")
+# torch.save(model.state_dict(), 'water_meter_brain.pth')
+# print("✅ Training Complete! Model saved as 'water_meter_brain.pth'")
