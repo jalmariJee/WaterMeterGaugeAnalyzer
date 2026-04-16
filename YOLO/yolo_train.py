@@ -20,12 +20,12 @@ class CustomizedDataset(ClassificationDataset):
         train_transforms = T.Compose(
             [
                 T.Resize((args.imgsz, args.imgsz)),
-                #T.RandomHorizontalFlip(p=args.fliplr),
-                #T.RandomVerticalFlip(p=args.flipud),
+                T.RandomHorizontalFlip(p=args.fliplr),
+                T.RandomVerticalFlip(p=args.flipud),
                 #T.RandAugment(interpolation=T.InterpolationMode.BILINEAR),
                 #T.ColorJitter(brightness=args.hsv_v, contrast=args.hsv_v, saturation=args.hsv_s, hue=args.hsv_h),
                 T.ToTensor(),
-                #T.Normalize(mean=torch.tensor(0), std=torch.tensor(1)),
+                T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
                 #T.RandomErasing(p=args.erasing, inplace = True),
 
             ]
@@ -36,7 +36,7 @@ class CustomizedDataset(ClassificationDataset):
             [
                 T.Resize((args.imgsz, args.imgsz)),
                 T.ToTensor(),
-                T.Normalize(mean=torch.tensor(0), std=torch.tensor(1)),
+                T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
             ]
         )
 
@@ -54,6 +54,6 @@ class CustomizedValidator(ClassificationValidator):
         """ Build a customized dataset for image classification with enhanced data augmentation."""
         return CustomizedDataset(root=img_path, args=self.args, augment=(mode=="train"), prefix=self.args.split)
     
-model = YOLO("yolo26n-cls.pt") # load a pretrained model (recommended for training)
+model = YOLO("yolo26x-cls.pt") # load a pretrained model (recommended for training)
 model.train(data= PATH_TRAIN, trainer=CustomizedTrainer, epochs=10, batch=64, imgsz=224)
 model.val(data=PATH_VAL , validator=CustomizedValidator, batch=64, imgsz=224)

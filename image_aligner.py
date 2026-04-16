@@ -1,5 +1,6 @@
 import cv2
 
+import torch
 import numpy as np
 import time
 import os
@@ -17,6 +18,17 @@ current_dir_images = os.path.join(current_dir, "images")
 # Load the YOLO model
 from ultralytics import YOLO
 model = YOLO(MODEL_PATH)
+model.eval()  # Set to evaluation mode (affects batch norm, dropout)
+
+from PIL import Image
+import torchvision.transforms as T
+
+# Transform that matches your YOLO training transforms exactly
+transform = T.Compose([
+    T.Resize((224, 224)),
+    T.ToTensor(),
+    T.Normalize(mean=torch.tensor(0), std=torch.tensor(1))
+])
 
 # Create a text file to save the results
 results_file_path = os.path.join(current_dir, "results.txt")
@@ -140,31 +152,39 @@ for image in image_files:
             print(f"Predicted digit: {prediction} with confidence {confidence:.2f}% at point {(x, y)}")
 
             # Writin the predicted digit on the original image for visualization
-            cv2.putText(resized, prediction, (x - r, y - r), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 0, 255), 2)<x
+            cv2.putText(resized, prediction, (x - r, y - r), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 0, 255), 2)
             # Also printing the confidence percentage on the image
             cv2.putText(resized, f"{confidence:.1f}%", (x - r, y - r + 30), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 0, 255), 2)
 
-            # Prediting YOLO, image crop needs to saved first
-            imsave_path = os.path.join(current_dir, "temp_crop.jpg")
-            cv2.imwrite(imsave_path, crop_img)
-            yolo_results = model.predict(imsave_path)
+            # Convert the cropped image to PIL format and apply the same transforms used in training
+            crop_img_pil = Image.fromarray(cv2.cvtColor(crop_img, cv2.COLOR_BGR2RGB))
+            crop_img_tensor = transform(crop_img_pil).unsqueeze(0)  # Add batch dimension
 
-            yolo_prediction = yolo_results[0].probs.top1  # Get the predicted class name
-            yolo_confidence = yolo_results[0].probs.top5conf[0].data  # Get the confidence score
+            # Use direct model inference to avoid YOLO re-applying preprocessing
+            with torch.no_grad():
+                yolo_results = model(crop_img_tensor, verbose=False)
+            
+            # Extract prediction from Results object
+            yolo_class_id = yolo_results[0].probs.top1
+            yolo_confidence = yolo_results[0].probs.top1conf.item()
+            yolo_prediction = yolo_results[0].names[yolo_class_id]
+            
+            # DEBUG: Show all top 5 predictions
+            top5_conf = yolo_results[0].probs.top5conf
+            top5_classes = yolo_results[0].probs.top5
+            print(f"  YOLO Top 5: {[(yolo_results[0].names[int(c)], conf.item()) for c, conf in zip(top5_classes, top5_conf)]}")
+            print(f"  → CNN: {prediction} ({confidence:.1f}%)  |  YOLO: {yolo_prediction} ({yolo_confidence*100:.1f}%)")
+            
             cv2.putText(resized_YOLO,  str(yolo_prediction), (x - r, y - r), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 0, 255), 2)
-            cv2.putText(resized_YOLO, f"{yolo_confidence:.1f}%", (x - r, y - r + 30), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 0, 255), 2)
+            cv2.putText(resized_YOLO, f"{yolo_confidence*100:.1f}%", (x - r, y - r + 30), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 0, 255), 2)
             # Comment the cropping, using these circles for alignment
             #Save the cropped image
 
             # The results consists of 4 readings: lets save them all in string
             prediction_str = prediction_str +  prediction
-            yolo_prediction_str = yolo_prediction +yolo_prediction
+            yolo_prediction_str = yolo_prediction_str + str((yolo_prediction.replace("digit_", "")))
 
-        # Update the results file with the predictions
-        with open(results_file_path, "a") as results_file:
-            results_file.write(f"{image}, {prediction}, {confidence:.2f}%\n")
 
-        
         dial_crop = resized[min_y-30:max_y+30, min_x-30:max_x+30]
         dial_crop_YOLO = resized_YOLO[min_y-30:max_y+30, min_x-30:max_x+30]
 
@@ -173,16 +193,20 @@ for image in image_files:
             os.makedirs(output_path)
         # Writing the image name with the predicted digit for easier identification of the results
         # If the exact same image name already exists, create a new name with a suffix to avoid overwriting
-        
+        suffix = ""
         if os.path.exists(os.path.join(output_path, f"{prediction_str}.jpg")):
             suffix = 1
+            
             while os.path.exists(os.path.join(output_path, f"{prediction_str}_{suffix}.jpg")):
                 suffix += 1
+
             cv2.imwrite(os.path.join(output_path, f"{prediction_str}_{suffix}.jpg"), dial_crop)
         else:
             cv2.imwrite(os.path.join(output_path, f"{prediction_str}.jpg"), dial_crop)
+        with open(results_file_path, "a") as results_file:
+            results_file.write(f"{prediction_str}_{suffix}, {prediction_str}, {confidence:.2f}%\n")
 
-        # cv2.imwrite(os.path.join(output_path, f"{prediction}"), dial_crop)
+        # cv2.imwrite(os.path.join(output_path, f"{predict ion}"), dial_crop)
         # cv2.imwrite(os.path.join(output_path, f"processed_{image}"), dial_crop)
 
         output_path = os.path.join(current_dir, "processed_images_YOLO")
