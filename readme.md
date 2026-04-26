@@ -86,7 +86,7 @@ Below is an example detection result from the YOLO model
 
 
 
-!\[Example Detection](example\_image.jpeg)
+!\[Example Detection]((https://github.com/jalmariJee/WaterMeterGaugeAnalyzer/blob/main/runs/detect/predict/WaterMeter_102.jpg))
 
 
 
