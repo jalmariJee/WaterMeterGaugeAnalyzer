@@ -14,13 +14,13 @@ This project focuses on developing an AI-based system capable of detecting and a
 
 \### 1. Image Cropper
 
-The initial phase involved creating the image\_cropper module, which was designed to crop the first dial from the water meter image. This cropped data was used for training and testing a Convolutional Neural Network (CNN) model.
+The initial phase involved creating the image_cropper module, which was designed to crop the first dial from the water meter image. This cropped data was used for training and testing a Convolutional Neural Network (CNN) model.
 
 
 
-\- Training `For\_testing\_CNNtrain\_resnet.py`  
+\- Training `For_testing_CNN\train_resnet.py`  
 
-\- Prediction `For\_testing\_CNNpredict.py`
+\- Prediction `For_testing_CNN\predict.py`
 
 
 
@@ -30,7 +30,7 @@ This stage focused on learning dial features and improving classification accura
 
 \### 2. YOLO Training
 
-After the CNN phase, the project transitioned to YOLO (You Only Look Once) for object detection. The YOLOyolo\_train directory contains scripts and configurations for training the YOLO model to perform inference directly on full images.
+After the CNN phase, the project transitioned to YOLO (You Only Look Once) for object detection. The YOLO\yolo_train directory contains scripts and configurations for training the YOLO model to perform inference directly on full images.
 
 
 
@@ -40,7 +40,7 @@ This approach allowed the model to detect dial locations without requiring prior
 
 \### 3. Final YOLO Project
 
-The final stage, located in Final\_YOLO\_Project, integrates YOLO for full-image detection, alignment, and classification. This version represents the culmination of the project — a robust pipeline capable of
+The final stage, located in Final_YOLO_Project, integrates YOLO for full-image detection, alignment, and classification. This version represents the culmination of the project — a robust pipeline capable of:
 
 
 
@@ -58,21 +58,22 @@ Water meter gauge analyser
 
 │
 
-├── image\_cropper                # Cropping tool for dial extraction
+├── image_cropper                # Cropping tool for dial extraction
 
-├── For\_testing\_CNN              # CNN training and prediction scripts
+├── For_testing_CNN              # CNN training and prediction scripts
 
-│   ├── train\_resnet.py
+│   ├── train_resnet.py
 
 │   └── predict.py
 
 ├── YOLO                         # YOLO training scripts and configs
 
-│   └── yolo\_train
+│   └── yolo_train
 
-├── Final\_YOLO\_Project           # Full detection and classification pipeline
+├── Final_YOLO_Project           # Full detection and classification pipeline
 
-└── runsdetectpredict          # Example detection outputs
+└── runs\detect
+└── runs\predict          # Example detection outputs
 
 
 
@@ -86,11 +87,12 @@ Below is an example detection result from the YOLO model
 
 
 
-!\[Example Detection]((https://github.com/jalmariJee/WaterMeterGaugeAnalyzer/blob/main/runs/detect/predict/WaterMeter_102.jpg))
+<img width="1080" height="1920" alt="WaterMeter_16" src="https://github.com/user-attachments/assets/8f58d633-f435-4d8d-8dab-e68b9a32bcb7" />
 
 
 
-(This image demonstrates the YOLO model successfully detecting the water meter dial location.)
+
+(This image demonstrates the YOLO model successfully detecting the water meter dial location and reading.)
 
 
 
@@ -98,9 +100,9 @@ Below is an example detection result from the YOLO model
 
 1\. Prepare Dataset Place raw water meter images in the designated dataset folder.  
 
-2\. Train CNN Run `train\_resnet.py` to train the CNN on cropped dial images.  
+2\. Train CNN Run `train_resnet.py` to train the CNN on cropped dial images.  
 
-3\. Train YOLO Use `YOLOyolo\_train` scripts to train the YOLO model for full-image detection.  
+3\. Train YOLO Use `YOLO\yolo_train` scripts to train the YOLO model for full-image detection.  
 
 4\. Run Inference Execute the final YOLO pipeline in `Final\_YOLO\_Project` to perform detection and classification.  
 
@@ -108,7 +110,7 @@ Below is an example detection result from the YOLO model
 
 \## Future Improvements
 
-\- Enhance dial reading accuracy using OCR integration.  
+\- Design hardware for acquisation of the images
 
 \- Expand dataset diversity for better generalization.  
 
