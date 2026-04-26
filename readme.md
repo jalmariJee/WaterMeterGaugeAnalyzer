@@ -73,6 +73,7 @@ Water meter gauge analyser
 ├── Final_YOLO_Project           # Full detection and classification pipeline
 
 └── runs\detect
+
 └── runs\predict          # Example detection outputs
 
 
@@ -104,7 +105,7 @@ Below is an example detection result from the YOLO model
 
 3\. Train YOLO Use `YOLO\yolo_train` scripts to train the YOLO model for full-image detection.  
 
-4\. Run Inference Execute the final YOLO pipeline in `Final\_YOLO\_Project` to perform detection and classification.  
+4\. Run Inference Execute the final YOLO pipeline in `Final_YOLO_Project` to perform detection and classification.  
 
 
 
